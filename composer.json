@@ -1,0 +1,24 @@
+{
+  "name": "carlonicora/minimalism-library",
+  "description": "Library for minimalism",
+  "version": "0.1.0",
+  "homepage": "https://carlonicora.com",
+  "time": "2019-05-14",
+  "authors": [
+    {
+      "name": "Carlo Nicora",
+      "email": "carlo@carlonicora.com",
+      "homepage": "http://carlonicora.com",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "carlonicora\\minimalism\\library\\":"src/"
+    }
+  },
+  "require": {
+    "ext-mysqli": "*",
+    "php": "^7.0"
+  }
+}
