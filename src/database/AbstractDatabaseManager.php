@@ -1,10 +1,10 @@
 <?php
-namespace carlonicora\minimalism\library\abstracts;
+namespace carlonicora\minimalism\library\database;
 
 use mysqli;
 use Exception;
 
-abstract class databaseManager
+abstract class AbstractDatabaseManager
 {
     const PARAM_TYPE_INTEGER = 'i';
     const PARAM_TYPE_DOUBLE = 'd';

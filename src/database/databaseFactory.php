@@ -1,12 +1,11 @@
 <?php
-namespace carlonicora\minimalism\library\helpers;
+namespace carlonicora\minimalism\library\database;
 
-use carlonicora\minimalism\library\abstracts\databaseManager;
-use carlonicora\minimalism\library\interfaces\InterfaceConfigurations;
+use carlonicora\minimalism\library\interfaces\ConfigurationsInterface;
 use mysqli;
 
 class databaseFactory {
-    /** @var InterfaceConfigurations */
+    /** @var ConfigurationsInterface */
     protected static $configurations;
 
     public static function initialise($configurations){
@@ -15,7 +14,7 @@ class databaseFactory {
 
     /**
      * @param string $dbReader
-     * @return databaseManager
+     * @return AbstractDatabaseManager
      */
     public static function create($dbReader){
         $response = null;
@@ -24,7 +23,7 @@ class databaseFactory {
             return(null);
         }
 
-        /** @var databaseManager $response */
+        /** @var AbstractDatabaseManager $response */
         $response = new $dbReader();
 
         $databaseName = $response->getDbToUse();
