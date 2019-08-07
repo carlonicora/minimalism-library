@@ -190,7 +190,7 @@ abstract class AbstractDatabaseManager
 
         $results = $statement->get_result();
 
-        if (isset($results)){
+        if (!empty($results)){
             $response = array();
 
             while ($record = $results->fetch_assoc()){

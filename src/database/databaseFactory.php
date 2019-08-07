@@ -29,8 +29,6 @@ class databaseFactory {
         $databaseName = $response->getDbToUse();
         $connection = self::$configurations->getDatabase($databaseName);
 
-        $saveConnection = !isset($connection);
-
         $dbConf = self::$configurations->getDatabaseConnectionString($databaseName);
 
         if (!isset($connection) && isset($dbConf)){
@@ -46,11 +44,6 @@ class databaseFactory {
         $connection->set_charset("utf8");
 
         $response->setConnection($connection);
-
-        if ($saveConnection)
-        {
-            self::$configurations->setDatabase($dbConf['dbName'], $connection);
-        }
 
         return($response);
     }
