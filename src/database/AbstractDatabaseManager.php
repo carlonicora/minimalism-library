@@ -1,6 +1,8 @@
 <?php
 namespace carlonicora\minimalism\library\database;
 
+use carlonicora\minimalism\library\exceptions\dbRecordNotFoundException;
+use carlonicora\minimalism\library\exceptions\dbUpdateException;
 use mysqli;
 use Exception;
 
@@ -62,6 +64,7 @@ abstract class AbstractDatabaseManager
     /**
      * @param array $records
      * @return bool
+     * @throws dbUpdateException
      */
     public function delete($records){
         return($this->update($records, true));
@@ -101,6 +104,7 @@ abstract class AbstractDatabaseManager
      * @param array $records
      * @param bool $delete
      * @return bool
+     * @throws dbUpdateException
      */
     public function update(&$records, $delete=false){
         $response = array();
@@ -178,7 +182,8 @@ abstract class AbstractDatabaseManager
     /**
      * @param string $sql
      * @param array $parameters
-     * @return array|null
+     * @return array
+     * @throws dbRecordNotFoundException
      */
     protected function runRead($sql, $parameters=null){
         $response = null;
@@ -190,7 +195,7 @@ abstract class AbstractDatabaseManager
 
         $results = $statement->get_result();
 
-        if (!empty($results)){
+        if (!empty($results) && $results->num_rows > 0){
             $response = array();
 
             while ($record = $results->fetch_assoc()){
@@ -198,6 +203,8 @@ abstract class AbstractDatabaseManager
 
                 $response[] = $record;
             }
+        } else {
+            throw new dbRecordNotFoundException();
         }
 
         $statement->close();
@@ -208,45 +215,40 @@ abstract class AbstractDatabaseManager
     /**
      * @param array $objects
      * @return bool
+     * @throws dbUpdateException
      */
     protected function runUpdate(&$objects){
         $response = true;
-        try{
-            $this->connection->autocommit(false);
 
-            foreach ($objects as &$object){
-                if (array_key_exists('sql', $object)) {
-                    $statement = $this->connection->prepare($object['sql']['statement']);
+        $this->connection->autocommit(false);
 
-                    if ($statement) {
-                        $parameters = $object['sql']['parameters'];
-                        call_user_func_array(array($statement, 'bind_param'), $this->refValues($parameters));
-                        if (!$statement->execute()) {
-                            $this->connection->rollback();
-                            $response = false;
-                            break;
-                        }
-                    } else {
+        foreach ($objects as &$object){
+            if (array_key_exists('sql', $object)) {
+                $statement = $this->connection->prepare($object['sql']['statement']);
+
+                if ($statement) {
+                    $parameters = $object['sql']['parameters'];
+                    call_user_func_array(array($statement, 'bind_param'), $this->refValues($parameters));
+                    if (!$statement->execute()) {
                         $this->connection->rollback();
-                        $response = false;
-                        break;
+                        throw new dbUpdateException();
                     }
-
-                    if ($object['sql']['status'] == self::RECORD_STATUS_NEW && isset($this->autoIncrementField)) {
-                        $object[$this->autoIncrementField] = $this->connection->insert_id;
-                    }
-
-                    unset($object['sql']);
-
-                    $this->addOriginalValues($object);
+                } else {
+                    $this->connection->rollback();
+                    throw new dbUpdateException();
                 }
-            }
 
-            $this->connection->autocommit(true);
-        } catch (Exception $e){
-            $this->connection->rollback();
-            $response = false;
+                if ($object['sql']['status'] == self::RECORD_STATUS_NEW && isset($this->autoIncrementField)) {
+                    $object[$this->autoIncrementField] = $this->connection->insert_id;
+                }
+
+                unset($object['sql']);
+
+                $this->addOriginalValues($object);
+            }
         }
+
+        $this->connection->autocommit(true);
 
         return($response);
     }
@@ -255,12 +257,13 @@ abstract class AbstractDatabaseManager
      * @param string $sql
      * @param string $parameters
      * @return array|null
+     * @throws dbRecordNotFoundException
      */
     protected function runReadSingle($sql, $parameters=null){
         $response = $this->runRead($sql, $parameters);
 
         if (isset($response) && sizeof($response) == 0){
-            $response = null;
+            throw new dbRecordNotFoundException();
         } else if (isset($response) && sizeof($response) == 1){
             $response = $response[0];
         }
@@ -468,6 +471,7 @@ abstract class AbstractDatabaseManager
     /**
      * @param $id
      * @return array|null
+     * @throws dbRecordNotFoundException
      */
     public function loadFromId($id){
         $sql = $this->generateSelectStatement();
@@ -482,6 +486,7 @@ abstract class AbstractDatabaseManager
 
     /**
      * @return array|null
+     * @throws dbRecordNotFoundException
      */
     public function loadAll(){
         $sql = 'SELECT * FROM ' . $this->tableName . ';';
