@@ -491,7 +491,7 @@ abstract class AbstractDatabaseManager
     public function loadAll(){
         $sql = 'SELECT * FROM ' . $this->tableName . ';';
 
-        $response = $this->runReadSingle($sql);
+        $response = $this->runRead($sql);
 
         return($response);
     }
