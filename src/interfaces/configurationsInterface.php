@@ -3,23 +3,23 @@ namespace carlonicora\minimalism\library\interfaces;
 
 use mysqli;
 
-interface ConfigurationsInterface
+interface configurationsInterface
 {
     /**
      * @param string $databaseName
      * @return mysqli|null
      */
-    function getDatabase($databaseName);
+    public function getDatabase($databaseName): ?mysqli;
 
     /**
      * @param string $databaseName
      * @return array
      */
-    function getDatabaseConnectionString($databaseName): array;
+    public function getDatabaseConnectionString($databaseName): array;
 
     /**
      * @param string $databaseName
      * @param mysqli $database
      */
-    function setDatabase($databaseName, $database);
+    public function setDatabase($databaseName, $database);
 }

@@ -1,7 +1,7 @@
 {
   "name": "carlonicora/minimalism-library",
   "description": "Library for minimalism",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "homepage": "https://carlonicora.com",
   "time": "2019-05-14",
   "authors": [
@@ -18,7 +18,8 @@
     }
   },
   "require": {
+    "ext-json": "*",
     "ext-mysqli": "*",
-    "php": "^7.0"
+    "php": "^7.2"
   }
 }

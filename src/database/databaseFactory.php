@@ -1,29 +1,31 @@
 <?php
 namespace carlonicora\minimalism\library\database;
 
-use carlonicora\minimalism\library\interfaces\ConfigurationsInterface;
+use carlonicora\minimalism\library\interfaces\configurationsInterface;
 use mysqli;
 
 class databaseFactory {
-    /** @var ConfigurationsInterface */
+    /** @var configurationsInterface */
     protected static $configurations;
 
-    public static function initialise($configurations){
+    public static function initialise($configurations): void
+    {
         self::$configurations = $configurations;
     }
 
     /**
      * @param string $dbReader
-     * @return AbstractDatabaseManager
+     * @return abstractDatabaseManager
      */
-    public static function create($dbReader){
+    public static function create($dbReader): abstractDatabaseManager
+    {
         $response = null;
 
         if (!class_exists($dbReader)){
-            return(null);
+            return null;
         }
 
-        /** @var AbstractDatabaseManager $response */
+        /** @var abstractDatabaseManager $response */
         $response = new $dbReader();
 
         $databaseName = $response->getDbToUse();
@@ -39,12 +41,14 @@ class databaseFactory {
             $connection->connect($dbConf['host'], $dbConf['username'], $dbConf['password'], $dbConf['dbName'], $dbConf['port']);
         }
 
-        if (!isset($connection) || $connection->connect_errno) return (null);
+        if (!isset($connection) || $connection->connect_errno) {
+            return null;
+        }
 
-        $connection->set_charset("utf8");
+        $connection->set_charset('utf8');
 
         $response->setConnection($connection);
 
-        return($response);
+        return $response;
     }
 }
