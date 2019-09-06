@@ -5,5 +5,4 @@ namespace carlonicora\minimalism\library\exceptions;
 use Exception;
 
 class dbUpdateException extends Exception {
-
 }

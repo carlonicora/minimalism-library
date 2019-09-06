@@ -6,8 +6,7 @@ use carlonicora\minimalism\library\exceptions\dbUpdateException;
 use mysqli;
 use Exception;
 
-abstract class abstractDatabaseManager
-{
+abstract class abstractDatabaseManager {
     public const PARAM_TYPE_INTEGER = 'i';
     public const PARAM_TYPE_DOUBLE = 'd';
     public const PARAM_TYPE_STRING = 's';
@@ -36,8 +35,10 @@ abstract class abstractDatabaseManager
     /** @var string */
     protected $tableName;
 
-    public function __construct()
-    {
+    /**
+     * abstractDatabaseManager constructor.
+     */
+    public function __construct() {
         if (!isset($this->tableName)){
             $fullName = get_class($this);
             $fullNameParts = explode('\\', $fullName);
@@ -48,16 +49,14 @@ abstract class abstractDatabaseManager
     /**
      * @return string
      */
-    public function getDbToUse(): string
-    {
+    public function getDbToUse(): string {
         return $this->dbToUse;
     }
 
     /**
      * @param mysqli $connection
      */
-    public function setConnection(mysqli $connection): void
-    {
+    public function setConnection(mysqli $connection): void {
         $this->connection = $connection;
     }
 
@@ -66,8 +65,7 @@ abstract class abstractDatabaseManager
      * @return bool
      * @throws dbUpdateException
      */
-    public function delete($records): bool
-    {
+    public function delete($records): bool {
         return $this->update($records, true);
     }
 
@@ -76,8 +74,7 @@ abstract class abstractDatabaseManager
      * @param array $parameters
      * @return bool
      */
-    public function runSql($sql, $parameters): bool
-    {
+    public function runSql($sql, $parameters): bool {
         $response = true;
 
         try{
@@ -108,8 +105,7 @@ abstract class abstractDatabaseManager
      * @return bool
      * @throws dbUpdateException
      */
-    public function update(&$records, $delete=false): bool
-    {
+    public function update(&$records, $delete=false): bool {
         $response = array();
 
         $isSingle = false;
@@ -179,8 +175,7 @@ abstract class abstractDatabaseManager
      * @return array
      * @throws dbRecordNotFoundException
      */
-    protected function runRead($sql, $parameters=null): array
-    {
+    protected function runRead($sql, $parameters=null): array {
         $response = null;
 
         $statement = $this->connection->prepare($sql);
@@ -214,8 +209,7 @@ abstract class abstractDatabaseManager
      * @return bool
      * @throws dbUpdateException
      */
-    protected function runUpdate(&$objects): bool
-    {
+    protected function runUpdate(&$objects): bool {
         $response = true;
 
         $this->connection->autocommit(false);
@@ -260,8 +254,7 @@ abstract class abstractDatabaseManager
      * @return array|null
      * @throws dbRecordNotFoundException
      */
-    protected function runReadSingle($sql, $parameters=null): ?array
-    {
+    protected function runReadSingle($sql, $parameters=null): ?array {
         $response = $this->runRead($sql, $parameters);
 
         if (isset($response)) {
@@ -286,8 +279,7 @@ abstract class abstractDatabaseManager
      * @param $record
      * @return int
      */
-    protected function status($record): int
-    {
+    protected function status($record): int {
         if (array_key_exists('originalValues', $record)){
             $response = self::RECORD_STATUS_UNCHANGED;
             foreach ($record['originalValues'] as $fieldName=>$originalValue){
@@ -306,8 +298,7 @@ abstract class abstractDatabaseManager
     /**
      * @param array $record
      */
-    private function addOriginalValues(&$record): void
-    {
+    private function addOriginalValues(&$record): void {
         $originalValues = array();
         foreach($record as $fieldName=>$fieldValue){
             $originalValues[$fieldName] = $fieldValue;
@@ -319,8 +310,7 @@ abstract class abstractDatabaseManager
      * @param $arr
      * @return array
      */
-    private function refValues($arr): array
-    {
+    private function refValues($arr): array {
         $refs = [];
 
         foreach ($arr as $key => $value) {
@@ -333,8 +323,7 @@ abstract class abstractDatabaseManager
     /**
      * @return string
      */
-    private function generateSelectStatement(): string
-    {
+    private function generateSelectStatement(): string {
         $response = 'SELECT * FROM ' . $this->tableName . ' WHERE ';
 
         foreach ($this->primaryKey as $fieldName=>$fieldType){
@@ -351,8 +340,7 @@ abstract class abstractDatabaseManager
     /**
      * @return array
      */
-    private function generateSelectParameters(): array
-    {
+    private function generateSelectParameters(): array {
         $response = array();
 
         $response[] = '';
@@ -368,8 +356,7 @@ abstract class abstractDatabaseManager
     /**
      * @return string
      */
-    private function generateInsertStatement(): string
-    {
+    private function generateInsertStatement(): string {
         $response = 'INSERT INTO ' . $this->tableName . ' (';
 
         $parameterList = '';
@@ -389,8 +376,7 @@ abstract class abstractDatabaseManager
     /**
      * @return array
      */
-    private function generateInsertParameters(): array
-    {
+    private function generateInsertParameters(): array {
         $response = array();
 
         $response[] = '';
@@ -406,8 +392,7 @@ abstract class abstractDatabaseManager
     /**
      * @return string
      */
-    private function generateDeleteStatement(): string
-    {
+    private function generateDeleteStatement(): string {
         $response = 'DELETE FROM ' . $this->tableName . ' WHERE ';
 
         foreach ($this->primaryKey as $fieldName=>$fieldType){
@@ -424,8 +409,7 @@ abstract class abstractDatabaseManager
     /**
      * @return array
      */
-    private function generateDeleteParameters(): array
-    {
+    private function generateDeleteParameters(): array {
         $response = array();
 
         $response[] = '';
@@ -441,8 +425,7 @@ abstract class abstractDatabaseManager
     /**
      * @return string
      */
-    private function generateUpdateStatement(): string
-    {
+    private function generateUpdateStatement(): string {
         $response = 'UPDATE ' . $this->tableName . ' SET ';
 
         foreach ($this->fields as $fieldName=>$fieldType){
@@ -469,8 +452,7 @@ abstract class abstractDatabaseManager
     /**
      * @return array
      */
-    private function generateUpdateParameters(): array
-    {
+    private function generateUpdateParameters(): array {
         $response = array();
 
         $response[] = '';
@@ -495,8 +477,7 @@ abstract class abstractDatabaseManager
      * @return array|null
      * @throws dbRecordNotFoundException
      */
-    public function loadFromId($id): ?array
-    {
+    public function loadFromId($id): ?array {
         $sql = $this->generateSelectStatement();
         $parameters = $this->generateSelectParameters();
 
@@ -509,8 +490,7 @@ abstract class abstractDatabaseManager
      * @return array|null
      * @throws dbRecordNotFoundException
      */
-    public function loadAll(): ?array
-    {
+    public function loadAll(): ?array {
         $sql = 'SELECT * FROM ' . $this->tableName . ';';
 
         return $this->runRead($sql);

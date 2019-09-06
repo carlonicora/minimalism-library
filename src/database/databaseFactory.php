@@ -8,8 +8,10 @@ class databaseFactory {
     /** @var configurationsInterface */
     protected static $configurations;
 
-    public static function initialise($configurations): void
-    {
+    /**
+     * @param $configurations
+     */
+    public static function initialise($configurations): void {
         self::$configurations = $configurations;
     }
 
@@ -17,8 +19,7 @@ class databaseFactory {
      * @param string $dbReader
      * @return abstractDatabaseManager
      */
-    public static function create($dbReader): abstractDatabaseManager
-    {
+    public static function create($dbReader): abstractDatabaseManager {
         $response = null;
 
         if (!class_exists($dbReader)){

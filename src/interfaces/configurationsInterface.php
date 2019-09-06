@@ -3,8 +3,7 @@ namespace carlonicora\minimalism\library\interfaces;
 
 use mysqli;
 
-interface configurationsInterface
-{
+interface configurationsInterface{
     /**
      * @param string $databaseName
      * @return mysqli|null
